@@ -4,4 +4,5 @@ transformers
 accelerate
 sentencepiece
 protobuf
+
 gradio_client

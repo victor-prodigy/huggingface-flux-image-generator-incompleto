@@ -1,14 +1,21 @@
 import torch
 from diffusers import StableDiffusion3Pipeline
 
-pipe = StableDiffusion3Pipeline.from_pretrained(
-    "stabilityai/stable-diffusion-3.5-large", torch_dtype=torch.bfloat16
-)
+model = "stabilityai/stable-diffusion-3.5-large"
+
+pipe = StableDiffusion3Pipeline.from_pretrained(model, torch_dtype=torch.bfloat16)
+# pipe.enable_model_cpu_offload()  # Save some VRAM by offloading the model to CPU
+pipe.enable_attention_slicing()
 pipe = pipe.to("cuda")
 
-image = pipe(
-    "A capybara holding a sign that reads Hello World",
-    num_inference_steps=28,
-    guidance_scale=3.5,
-).images[0]
-image.save("capybara.png")
+prompt = "a programmer touching grass"
+
+results = pipe(
+    prompt, num_inference_steps=20, guidance_scale=3.5, height=512, width=512
+)
+
+images = results.images
+
+# Save or display the images
+for i, img in enumerate(images):
+    img.save(f"image_{i}.png")  # Save each image
